@@ -1,0 +1,11 @@
+binary_builds/release/
+binary_builds/build/
+binary_builds/svLib/
+binary_builds/dist/
+binary_builds/obfuscated/
+binary_builds/Releases/
+*.log
+*.pyd
+*.pyc
+.idea/workspace.xml
+bin/LICENSE.chromedriver

@@ -1,0 +1,26 @@
+[
+    {
+        "domain": ".mysite.com",
+        "expirationDate": 1900835555.715111,
+        "hostOnly": false,
+        "httpOnly": true,
+        "name": "Cookie1Name",
+        "path": "/",
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "COOKIE1VALUE"
+    },
+    {
+        "domain": ".mysite.com",
+        "expirationDate": 1901094435.295435,
+        "hostOnly": false,
+        "httpOnly": true,
+        "name": "Cookie2Name",
+        "path": "/",
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "COOKIE2VALUE"
+    }
+]

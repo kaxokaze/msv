@@ -1,0 +1,32 @@
+Mass Site Visitor (MSV) is designed to direct large amounts of traffic to websites of your choice through the list of proxies in a multi-threaded way. You can set referrers and user agents, which along with proxies will be randomly selected to create a PhantomJS session. Referrers, user agents and proxies should be stored in a text-file and can be appended to an already loaded list in the program by pressing the 'Load the list' button. Remember to add the word socks5 after the ip of a public socks4/5 proxy, separated by a single space.
+
+Results for this browser session you can select to save as an image snapshot for every visit (to see how web-site is seen from different IPs), with a customized behavior of the headless PhantomJS browser while it's on page, you can set the program to click some links too (check out Settings - Options).
+
+There is an ability to filter out non-responsive proxies from the ones that work, and save them to file (Settings -  Export Healthy Proxies).  
+
+If you don't have a proxy list of your own, and the one supplied with MSV isn't satisfactory (with time those proxies might cease to work), there is an ability to scrap public proxies from the web, Settings - Import Proxies from the web, if you are scraping proxies from the web, you don't have to worry about adding the proxy type for a socks proxy, program will save all the info in the right format.
+
+The log of events, that happened in a context of the program is available for the user to study. It will contain messages about the proxy scraping process, as well as the process of sending traffic through proxies to the target website.
+
+
+
+
+Program should run independently of any third party libraries and runtimes, tested on a clean install of Windows 8.1
+	
+	
+	
+	
+	
+	Some tips about running and installing:
+
+1. The program itself communicates with the headless browser through the socket interface, so to allow interprocess communication you will most likely have to allow Windows Firewall to give both PhantomJS and MSV the green light (usually, firewall will straight up ask if you want to allow the program to communicate through network)
+
+2. You might get it working on Windows XP and 10, but MSV was never tested on those
+
+3. The folder will all the setting and outputs will be something like C:/Users/Your Username/Site Mass Visitor. If you never changed the default directory of saving scraped proxies, they are in that folder somwhere.
+
+
+
+
+
+Proprietary. Check the file LICENSE_MSV.txt in the root of the program archive

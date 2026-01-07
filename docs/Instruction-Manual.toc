@@ -1,0 +1,14 @@
+\setcounter {tocdepth}{0}
+\contentsline {section}{Contents}{1}{section*.1}%
+\setcounter {tocdepth}{2}
+\contentsline {section}{General usage and description}{2}{section*.2}%
+\contentsline {section}{Autoclicker usage and tips}{5}{section*.3}%
+\contentsline {section}{Google Analytics traffic sources}{8}{section*.4}%
+\contentsline {section}{Testing proxies}{8}{section*.5}%
+\contentsline {section}{Influencing view count on media sharing sites (videos, audio streams)}{9}{section*.6}%
+\contentsline {section}{Private, socks proxies}{9}{section*.7}%
+\contentsline {section}{User agents, and client types (mobile, desktop) explained}{9}{section*.8}%
+\contentsline {section}{Using cookies with MSV}{10}{section*.9}%
+\contentsline {section}{FAQ: Common questions answered}{11}{section*.10}%
+\contentsline {section}{Requirements, gotchas}{14}{section*.11}%
+\contentsfinish 

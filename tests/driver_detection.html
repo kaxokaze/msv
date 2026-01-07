@@ -1,0 +1,72 @@
+<html>
+
+<head>
+<script>
+    function varWrite(variableName, variable) {
+        document.write("The value for <b>'");
+        document.write(variableName);
+        document.write("'</b> is: <b><span id=\"_phantom\">'");
+        document.write(variable);
+        document.write("'</span></b><br/>");
+    }
+</script>
+</head>
+
+<body>
+
+<p>
+    <script>
+        var heightAndWidthIsZero = window.outerWidth === 0 && window.outerHeight === 0;
+
+        varWrite("heightAndWidthIsZero", heightAndWidthIsZero);
+        varWrite("document.__fxdriver_unwrapped", document.__fxdriver_unwrapped);
+        varWrite("document.__selenium_unwrapped", document.__selenium_unwrapped);
+        varWrite("document.__driver_evaluate", document.__driver_evaluate);
+        varWrite("document.__webdriver_unwrapped", document.__webdriver_unwrapped);
+        varWrite("document.__driver_unwrapped", document.__driver_unwrapped);
+        varWrite("document.__fxdriver_evaluate", document.__fxdriver_evaluate);
+        varWrite("document.__webdriver_script_fn", document.__webdriver_script_fn);
+        varWrite("document.__webdriver_script_func", document.__webdriver_script_func);
+        varWrite("document.__webdriver_script_function", document.__webdriver_script_function);
+        varWrite("document.__selenium_evaluate", document.__selenium_evaluate);
+        varWrite("document.__webdriver_evaluate", document.__webdriver_evaluate);
+        varWrite("\"__webdriver_script_fn\" in document", "__webdriver_script_fn" in document);
+        varWrite("decodeURIComponent(\"%5F%5F%77%65%62%64%72%69%76%65%72%5F%73%63%72%69%70%74%5F%66%6E\") in document", decodeURIComponent("%5F%5F%77%65%62%64%72%69%76%65%72%5F%73%63%72%69%70%74%5F%66%6E") in document);
+        varWrite("decodeURIComponent(\"%5F%53%65%6C%65%6E%69%75%6D%5F%49%44%45%5F%52%65%63%6F%72%64%65%72\") in window", decodeURIComponent("%5F%53%65%6C%65%6E%69%75%6D%5F%49%44%45%5F%52%65%63%6F%72%64%65%72") in window);
+        varWrite("Function.prototype.bind", Function.prototype.bind);
+        varWrite("Error from bind prototype == Error from Error object ?", Function.prototype.bind.toString().replace(/bind/g, 'Error') == Error.toString());
+        varWrite("navigator.language", navigator.language);
+        varWrite("navigator.webdriver", navigator.webdriver);
+        varWrite("navigator.plugins.length", navigator.plugins.length);
+        varWrite("window.navigator.userAgent", window.navigator.userAgent);
+        varWrite("window._phantom", window._phantom);
+        varWrite("window.callPhantom", window.callPhantom);
+        varWrite("window.__phantomas", window.__phantomas);
+        varWrite("window.Buffer", window.Buffer);
+        varWrite("window.emit", window.emit);
+        varWrite("window.spawn", window.spawn);
+        varWrite("window.webdriver", window.webdriver);
+        varWrite("window.domAutomation", window.domAutomation);
+        varWrite("window.document.documentElement.getAttribute(decodeURIComponent(\"%77%65%62%64%72%69%76%65%72\")", window.document.documentElement.getAttribute(decodeURIComponent("%77%65%62%64%72%69%76%65%72")));
+        varWrite("window.document.$cdc_asdjflasutopfhvcZLmcfl_", window.document.$cdc_asdjflasutopfhvcZLmcfl_);
+        varWrite("window._selenium", window._selenium);
+        varWrite("window.callSelenium", window.callSelenium);
+        varWrite("\"showModalDialog\" in window", "showModalDialog" in window);
+        varWrite("\"webdriver\" in window", "webdriver" in window);
+        varWrite("\"_Selenium_IDE_Recorder\" in window", "_Selenium_IDE_Recorder" in window);
+        varWrite("window.document.documentElement.getAttribute(\"webdriver\")", window.document.documentElement.getAttribute("webdriver"));
+    </script>
+</p>
+<p>
+    <iframe id="inlineFrameExample"
+    title="More tests"
+    width="600"
+    height="400"
+    src="https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html">
+</iframe>
+</p>
+
+
+</body>
+
+</html>
