@@ -636,45 +636,39 @@ class VisitWorker:
         if not self.alive:
             return False
 
-        # semaphores make sure, that stats don't get mingled, here we record the sizes of responses per proxy
-        self.scheduler().get_sv_stat_log_sem().acquire()
+        # Serialize updates to per-proxy statistics. Always release the semaphore,
+        # even if a logger or callback unexpectedly raises.
+        stat_sem = self.scheduler().get_sv_stat_log_sem()
+        stat_sem.acquire()
+        try:
+            is_success = bytes_received > self.agent_settings.sva_success_page_min_size
+            if is_success:
+                self.scheduler().countSuccess()
+            else:
+                self.scheduler().countError()
+                svLogger.log_error(
+                    'Response size from proxy', proxy_string, 'has size', bytes_received,
+                    'which is less than the size of a minimal correct response',
+                    self.agent_settings.sva_success_page_min_size
+                )
 
-        if bytes_received > self.agent_settings.sva_success_page_min_size:
-            # Count one for the good guys
-            self.scheduler().countSuccess()
-        else:
-            self.scheduler().countError()
-            svLogger.log_error('Response size from proxy ', proxy_string, 'has size', bytes_received,
-                               'which is less than the size of a minimal correct response',
-                               self.agent_settings.sva_success_page_min_size)
+            entry = proxy_string if proxy_string is not None else globalConstants.TXT_NOPROXY
+            responses = self.agent_settings.sv_proxy_responses.setdefault(entry, [])
+            responses.append(bytes_received)
 
-        # 420 log it
-        entry = proxy_string if proxy_string is not None else globalConstants.TXT_NOPROXY
-        if entry not in self.agent_settings.sv_proxy_responses:
-            self.agent_settings.sv_proxy_responses[entry] = [bytes_received]
-        else:
-            self.agent_settings.sv_proxy_responses[entry].append(bytes_received)
+            # Notify UI callbacks only when configured. A missing optional callback
+            # must not turn a completed request into an unhandled worker failure.
+            if entry != globalConstants.TXT_NOPROXY:
+                if is_success:
+                    callback = self.agent_settings.sv_proxy_success_callback
+                else:
+                    callback = self.agent_settings.sv_proxy_fail_callback
+                if callback is not None:
+                    callback(proxy_string)
 
-        # Has this proxy EVER successfully returned a page, that we requested?
-        # If so - notify the client through a callback
-        if entry != globalConstants.TXT_NOPROXY:
-            at_least_1_success = False
-            for result in self.agent_settings.sv_proxy_responses[entry]:
-                # if the response is less than self.agent_settings.sva_success_page_min_size bytes long it's either
-                # empty web page (39 bytes for default tags in phantomjs)
-                # or an error message. btw, BIG THANKS to selenium for not having any way to get response codes
-                if result > self.agent_settings.sva_success_page_min_size and self.agent_settings.sv_proxy_success_callback is not None:
-                    self.agent_settings.sv_proxy_success_callback(proxy_string)
-                    at_least_1_success = True
-                    break
-
-            if not at_least_1_success:
-                self.agent_settings.sv_proxy_fail_callback(proxy_string)
-
-        self.scheduler().get_sv_stat_log_sem().release()
-
-        # return whether the CURRENT request was successful
-        return bytes_received > self.agent_settings.sva_success_page_min_size
+            return is_success
+        finally:
+            stat_sem.release()
 
     def perform_scripted_behavior(self):
         script_executed = False
