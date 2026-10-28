@@ -1,5 +1,9 @@
+import logging
 import threading
 import time
+
+
+logger = logging.getLogger(__name__)
 
 """Flexible thread pool class.  Creates a pool of threads, then
 accepts tasks that will be dispatched to the next available
@@ -146,8 +150,9 @@ class ThreadPoolThread(threading.Thread):
                     cmd(args) if args is not None else cmd()
                 else:
                     callback(cmd(args)) if args is not None else callback(cmd())
-            except Exception as e:
-                pass  # couldn't care lees why the task has crashed
+            except Exception:
+                # Keep worker threads alive, but don't hide task failures from maintainers.
+                logger.exception("Unhandled exception while executing a thread-pool task")
 
     """ Exit the run loop next time through."""
 
