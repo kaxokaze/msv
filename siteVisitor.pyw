@@ -218,6 +218,7 @@ def onWorkerStart():
 
 
 def onWorkerStop():
+    # Signal the frame handler to refresh status after a worker stops.
     sv_s_check_sem.acquire()
     global svc_check_w_status
     svc_check_w_status = True
