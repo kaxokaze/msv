@@ -49,40 +49,43 @@ def createPhantomJsDriver():
 
 
 def createHeadlessChromeDriver(d_cap=None, options=None, uses_proxy=False):
-    if options is None:
-        chrome_options = ChromeOptions()
-        # for headless chrome to load page with a normal speed, instead of like 2 mins per page
-        # https://github.com/Codeception/CodeceptJS/issues/561#issuecomment-373666779
-        if not uses_proxy:
-            chrome_options.add_argument("--proxy-server='direct://'")
-            chrome_options.add_argument("--proxy-bypass-list=*")
-    else:
-        chrome_options = options
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--mute-audio")
-    chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.add_argument("--disable-extensions-file-access-check")
-    chrome_options.add_argument("--disable-system-timezone-automatic-detection")
-    chrome_options.add_argument("--disable-plugins-discovery")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--window-size=1920x1100")
-    chrome_options.add_argument("--dns-prefetch-disable")
-    chrome_options.add_argument("--force-device-scale-factor=1")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-infobars")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-browser-side-navigation")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--autoplay-policy=no-user-gesture-required")
+    chrome_options = options if options is not None else ChromeOptions()
+    if options is None and not uses_proxy:
+        # Bypass proxy configuration only for explicitly direct test sessions.
+        chrome_options.add_argument("--proxy-server=direct://")
+        chrome_options.add_argument("--proxy-bypass-list=*")
 
-    if d_cap is None:
-        caps = DesiredCapabilities().CHROME
-        caps["pageLoadStrategy"] = "eager"
-    d_cap['acceptSslCerts'] = True
+    for argument in (
+        "--headless",
+        "--mute-audio",
+        "--ignore-certificate-errors",
+        "--disable-extensions-file-access-check",
+        "--disable-system-timezone-automatic-detection",
+        "--disable-plugins-discovery",
+        "--disable-extensions",
+        "--window-size=1920x1100",
+        "--dns-prefetch-disable",
+        "--force-device-scale-factor=1",
+        "--no-sandbox",
+        "--disable-infobars",
+        "--disable-dev-shm-usage",
+        "--disable-browser-side-navigation",
+        "--disable-gpu",
+        "--autoplay-policy=no-user-gesture-required",
+    ):
+        chrome_options.add_argument(argument)
 
-    driver = selenium.webdriver.Chrome(executable_path=globalConstants.CHROMEDRIVER_PATH, chrome_options=chrome_options,
-                                       desired_capabilities=d_cap)
-    return driver
+    # Copy desired capabilities before mutation so callers' shared defaults
+    # cannot be changed as a side effect.
+    capabilities = dict(DesiredCapabilities.CHROME if d_cap is None else d_cap)
+    capabilities.setdefault("pageLoadStrategy", "eager")
+    capabilities["acceptSslCerts"] = True
+
+    return selenium.webdriver.Chrome(
+        executable_path=globalConstants.CHROMEDRIVER_PATH,
+        chrome_options=chrome_options,
+        desired_capabilities=capabilities,
+    )
 
 
 def createHeadlessFirefoxDriver(profile=None, proxy=None):
