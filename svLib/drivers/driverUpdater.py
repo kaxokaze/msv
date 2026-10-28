@@ -55,20 +55,48 @@ def identify_geckodriver_url(_64_BIT, WINDOWS):
 
 
 def get_current_chrome_version(WINDOWS):
+    """Return the installed Chrome/Chromium version or raise a descriptive error."""
     if WINDOWS:
-        process = subprocess.Popen(
-            ['reg', 'query', "HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon", '/v', 'version'],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL
-        )
-        output = process.communicate()[0]
-        output = output.strip()
-        version = output.split()[-1].decode('utf-8')
+        command = [
+            'reg', 'query',
+            r'HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon',
+            '/v', 'version'
+        ]
     else:
-        # TODO: This single method for linux isn't reliable enough
-        with subprocess.Popen(['chromium-browser', '--version'], stdout=subprocess.PIPE) as proc:
-            version = proc.stdout.read().decode('utf-8').replace('Chromium', '').strip()
-            version = version.replace('Google Chrome', '').strip()
-    return version
+        command = ['google-chrome', '--version']
+
+    candidates = [command]
+    if not WINDOWS:
+        candidates.extend([
+            ['chromium', '--version'],
+            ['chromium-browser', '--version'],
+            ['google-chrome-stable', '--version'],
+        ])
+
+    errors = []
+    for candidate in candidates:
+        try:
+            result = subprocess.run(
+                candidate,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                timeout=10,
+                text=True,
+            )
+            match = re.search(r'\d+(?:\.\d+){2,3}', result.stdout)
+            if match:
+                return match.group(0)
+            errors.append(f"{candidate[0]} did not report a version")
+        except (OSError, subprocess.SubprocessError) as exc:
+            errors.append(f"{candidate[0]}: {exc}")
+
+    raise RuntimeError(
+        "Could not detect an installed Chrome/Chromium version. "
+        "Install a supported browser or configure its executable path. "
+        + "; ".join(errors)
+    )
 
 
 def get_chrome_base_version(version):
