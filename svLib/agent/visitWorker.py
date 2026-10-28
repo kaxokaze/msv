@@ -905,12 +905,12 @@ class VisitWorker:
             return
 
         parsed_url = urlparse(target_url)
-        target_hostname = (parsed_url.hostname or "").lower()
-        if not parsed_url.scheme or not target_hostname:
+        hostname = parsed_url.hostname
+        if not parsed_url.scheme or not hostname:
             svLogger.log_error("Cannot apply cookies to invalid target URL", target_url)
             return
 
-        target_domain = target_hostname.removeprefix("www.")
+        target_domain = hostname.lower().removeprefix("www.")
         cookie_found = False
         if not isinstance(cookies, list):
             svLogger.log_error("Cookie file must contain a JSON array", cookie_file_path)
@@ -927,7 +927,7 @@ class VisitWorker:
 
             if not cookie_found:
                 svLogger.log_event("Found cookie for the website", target_domain, "applying...")
-                self.driver.get(f"{parsed_url.scheme}://{parsed_url.hostname}/")
+                self.driver.get(f"{parsed_url.scheme}://{hostname}/")
                 cookie_found = True
 
             if self.browser_type == globalConstants.BR_PJS:
