@@ -1,0 +1,7 @@
+# Runtime dependencies imported by MSV.
+# This legacy app currently relies on Selenium 3 APIs; Selenium 4 migration is a separate task.
+selenium==3.141.0
+requests>=2.28,<3
+beautifulsoup4>=4.11,<5
+psutil>=5.9,<8
+xmltodict>=0.13,<1
