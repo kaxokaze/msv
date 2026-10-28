@@ -279,23 +279,29 @@ class AgentScheduler:
         self.sv_thread_list_sem.release()
 
     def clear_worker(self, worker: VisitWorker):
+        # Always release the list lock, including when logging or callbacks fail.
         self.sv_thread_list_sem.acquire()
-
-        if self.alive:
-            self.visits_complete += 1
-
         try:
-            worker_ind = self.act_workers.index(worker)
-            self.act_workers.pop(worker_ind)
+            if self.alive:
+                self.visits_complete += 1
 
-            svLogger.log_event("Worker", worker_ind, "(thread %s)" % worker.get_thread().getName(), "is done.")
+            try:
+                worker_ind = self.act_workers.index(worker)
+                self.act_workers.pop(worker_ind)
+            except ValueError:
+                # Repeated cleanup can happen during stop/purge races.
+                return
+
+            worker_thread = worker.get_thread()
+            thread_name = worker_thread.name if worker_thread is not None else "unknown"
+            svLogger.log_event("Worker", worker_ind, "(thread %s)" % thread_name, "is done.")
 
             if self.agent_settings.sv_th_stop_callback is not None:
                 self.agent_settings.sv_th_stop_callback()
-        except Exception as e:
-            print(e)
-
-        self.sv_thread_list_sem.release()
+        except Exception:
+            svLogger.log_error("Error while clearing a visitor worker")
+        finally:
+            self.sv_thread_list_sem.release()
 
     def get_sv_stat_log_sem(self):
         return self.sv_stat_log_sem
