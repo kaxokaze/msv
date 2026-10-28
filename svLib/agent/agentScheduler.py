@@ -219,18 +219,18 @@ class AgentScheduler:
         print(self.agent_settings.sv_proxy_responses)
 
     def choose_ref(self, referrers):
-        referrer = None
-        if len(referrers) > 0:
-            referrer = referrers[random.randint(0, len(referrers) - 1)]
-        return referrer
+        if not referrers:
+            return None
+        return referrers[random.randint(0, len(referrers) - 1)]
 
     def choose_ua(self, user_agents):
-        user_agent = None
-        if len(user_agents) > 0:
-            user_agent = user_agents[random.randint(0, len(user_agents) - 1)]
-        return user_agent
+        if not user_agents:
+            return None
+        return user_agents[random.randint(0, len(user_agents) - 1)]
 
     def choose_proxy(self, proxies):
+        if not proxies:
+            return None
         proxy = None
         n_proxies = len(proxies)
 
