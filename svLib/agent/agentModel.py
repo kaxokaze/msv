@@ -21,7 +21,6 @@ class AgentModel:
 
         self.sv_th_stop_callback: callable = None
         self.sv_th_start_callback: callable = None
-        self.sv_th_stop_callback: callable = None
 
         self.chrome_start_semaphore = threading.Semaphore(1)
         self.firefox_start_semaphore = threading.Semaphore(1)
@@ -33,7 +32,6 @@ class AgentModel:
         self.sva_timeout_interval: float = 60
         self.sva_locales_enabled: bool = True
         self.sva_hide_offscreen: bool = False
-        self.sva_alexa_enabled: bool = False
         self.sva_alexa_enabled: bool = False
         self.images_enabled: bool = True
         self.sva_use_js_ref: bool = True
