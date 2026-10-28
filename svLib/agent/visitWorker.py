@@ -889,39 +889,54 @@ class VisitWorker:
         self.scheduler().clear_worker(self)
 
     def preload_cookies_file(self, target_url):
-        # Check if the JSON file exists
+        """Load cookies whose domain matches the target URL, without mutating source data."""
         cookie_file_path = self.agent_settings.cookies_file
-        if self.agent_settings.sva_cookies_enabled and os.path.exists(cookie_file_path):
-            # Read the cookies from the JSON file
-            with open(cookie_file_path, 'r') as cookie_file:
+        if not self.agent_settings.sva_cookies_enabled:
+            return
+        if not os.path.exists(cookie_file_path):
+            svLogger.log_event("The", cookie_file_path, "file does not exist. Not using cookies for visit")
+            return
+
+        try:
+            with open(cookie_file_path, "r", encoding="utf-8") as cookie_file:
                 cookies = json.load(cookie_file)
-            svLogger.log_event("Found cookie file, trying to apply cookies to the visit")
-            parsed_url = urlparse(target_url)
+        except (OSError, ValueError) as exc:
+            svLogger.log_error("Could not read cookie file", cookie_file_path, exc)
+            return
 
-            cookie_found = False
+        parsed_url = urlparse(target_url)
+        target_hostname = (parsed_url.hostname or "").lower()
+        if not parsed_url.scheme or not target_hostname:
+            svLogger.log_error("Cannot apply cookies to invalid target URL", target_url)
+            return
 
-            # Pass the matching cookies to the browser
-            for cookie in cookies:
-                cookie_domain = cookie.get('domain', '')
+        target_domain = target_hostname.removeprefix("www.")
+        cookie_found = False
+        if not isinstance(cookies, list):
+            svLogger.log_error("Cookie file must contain a JSON array", cookie_file_path)
+            return
 
-                if cookie_domain and cookie_domain.startswith('.'):
-                    cookie_domain = cookie_domain[1:]  # Remove leading dot for comparison
+        for source_cookie in cookies:
+            if not isinstance(source_cookie, dict):
+                continue
+            cookie = dict(source_cookie)
+            cookie_domain = str(cookie.get("domain", "")).lower().lstrip(".")
+            cookie_domain = cookie_domain.removeprefix("www.")
+            if not cookie_domain or cookie_domain != target_domain:
+                continue
 
-                strip = "www."
-                cookie_domain = cookie_domain[4:] if cookie_domain.startswith(strip) else cookie_domain
-                target_domain = parsed_url.hostname[4:] if parsed_url.hostname.startswith(strip) else parsed_url.hostname
+            if not cookie_found:
+                svLogger.log_event("Found cookie for the website", target_domain, "applying...")
+                self.driver.get(f"{parsed_url.scheme}://{parsed_url.hostname}/")
+                cookie_found = True
 
-                if cookie_domain == target_domain:
-                    # preload the page once, if a cookie for the target website exists, os that cookes are settable
-                    if not cookie_found:
-                        svLogger.log_event("Found cookie for the website", target_domain, "applying...")
-                        self.driver.get(parsed_url.scheme + "://" + parsed_url.hostname + "/")
-                        cookie_found = True
+            if self.browser_type == globalConstants.BR_PJS:
+                cookie["domain"] = "." + cookie_domain
+            if self.browser_type in (globalConstants.BR_CHR, globalConstants.BR_FX):
+                cookie.pop("sameSite", None)
 
-                    if self.browser_type == globalConstants.BR_PJS:
-                        cookie["domain"] = "." + cookie_domain
-                    if self.browser_type == globalConstants.BR_CHR or self.browser_type == globalConstants.BR_FX:
-                        del cookie["sameSite"]
-                    self.driver.add_cookie(cookie)
-        else:
-            svLogger.log_event("The " + cookie_file_path + " file does not exist. Not using cookies for visit")
+            try:
+                self.driver.add_cookie(cookie)
+            except Exception as exc:
+                svLogger.log_error("Failed to apply cookie for", target_domain, exc)
+
